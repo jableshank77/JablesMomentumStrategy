@@ -1,0 +1,1 @@
+# TwoBarScalpWithTrailingStop
