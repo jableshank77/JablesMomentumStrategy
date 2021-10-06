@@ -26,11 +26,12 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public class TwoBarScalpWithTrailingStop : Strategy
 	{
+		private int		orderQuantity		= 1;		// Default setting for contracts per trade
 		private int		breakEvenTicks		= 20;		// Default setting for ticks needed to acheive before stop moves to breakeven		
 		private int		plusBreakEven		= 2; 		// Default setting for amount of ticks past breakeven to actually breakeven
-		private int		profitTargetTicks	= 20;		// Default setting for how many Ticks away from AvgPrice is profit target
-        private int		stopLossTicks		= 15;		// Default setting for stoploss. Ticks away from AvgPrice		
-		private int		trailProfitTrigger	= 20;		// 8 Default Setting for trail trigger ie the number of ticks moved after break even befor activating TrailStep
+		private int		profitTargetTicks	= 100;		// Default setting for how many Ticks away from AvgPrice is profit target
+        private int		stopLossTicks		= 100;		// Default setting for stoploss. Ticks away from AvgPrice		
+		private int		trailProfitTrigger	= 20;		// 8 Default Setting for trail trigger ie the number of ticks movede after break even befor activating TrailStep
 		private int		trailStepTicks		= 12;		// 2 Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
 		private int 	BarTraded 			= 0; 		// Default setting for Bar number that trade occurs	
 		
@@ -40,8 +41,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 		private double 	previousPrice		= 0;		// previous price used to calculate trailing stop
 		private double 	newPrice			= 0;		// Default setting for new price used to calculate trailing stop
 		private double	stopPlot			= 0;		// Value used to plot the stop level
-		private double  ScalpQuantity		= 2;		// The number of contracts for the scalp portion of the trade
-		private double  RunnerQuantity		= 1;		// The number of contracts for the runner portion of the trade
+		
 
 		// 7/8/2020 - Changed from Calculate.OnBarClose to Calculate.OnPriceChange for correct stop placement
 		// 7/8/2020 - Relocated entry logic to occur after Market position sequencing for "Best Practices"
@@ -51,7 +51,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 		{
 			if (State == State.SetDefaults)
 			{
-				Description							= @"The name says it all.";
+				Description							= @"ProfitTargetTrailingStop Version 1.01b. StopLoss, Trailing Stop and ProfitTarget With Controls. By Chris Long. alcamie@gmail.com";
 				Name								= "TwoBarScalpWithTrailingStop";
 				Calculate							= Calculate.OnPriceChange;
 				EntriesPerDirection					= 1;
@@ -68,11 +68,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 				RealtimeErrorHandling				= RealtimeErrorHandling.StopCancelClose;
 				StopTargetHandling					= StopTargetHandling.PerEntryExecution;
 				BarsRequiredToTrade					= 20;
-				// Disable this property for performance gains in Strategy Analyzer optimizations
-				// See the Help Guide for additional information
-				IsInstantiatedOnEachOptimizationIteration	= false;
-				EntriesPerDirection 			= 1;
-        		EntryHandling 					= EntryHandling.UniqueEntries;
 
 				AddPlot(new Stroke(Brushes.Lime, 2), PlotStyle.Hash, "ProfitTarget");
 				AddPlot(new Stroke(Brushes.Red, 2), PlotStyle.Line, "StopLoss");
@@ -81,7 +76,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 			else if (State == State.Configure)
 			{
 				SetStopLoss(CalculationMode.Ticks, stopLossTicks);
-				SetProfitTarget(@"ScalpEntry", CalculationMode.Ticks, profitTargetTicks);	
+				SetProfitTarget(CalculationMode.Ticks, profitTargetTicks);	
 			}
 		}
 		
@@ -185,49 +180,54 @@ namespace NinjaTrader.NinjaScript.Strategies
 			 FillShortEntry1(); // must call this to enter short
 			}		
 			*/
+
 			bool TimeCheck = (Times[0][0].TimeOfDay > new TimeSpan(17, 0, 0))
 			 	|| (Times[0][0].TimeOfDay < new TimeSpan(14, 45, 0));
-
 			bool Flat = (Position.MarketPosition == MarketPosition.Flat);
-			bool Bullish = (Close[0] > Close[1]) && (Close[1] > Close[2]) 
-				&& (Close[0] > Open[0]) && (Close[1] > Open[1]) && (Close[2] > Open[2]);
-
-			bool Bearish = (Close[0] < Close[1]) && (Close[1] < Close[2]) 
-				&& (Close[0] < Open[0]) && (Close[1] < Open[1]) && (Close[2] < Open[2]);
+			bool Long = (Position.MarketPosition == MarketPosition.Long);
+			bool Short = (Position.MarketPosition == MarketPosition.Short);
+			bool Bullish = (Close[1] > Close[2]) && (Close[1] > Open[1]);
+			bool Bearish = (Close[1] < Close[2]) && (Close[1] < Open[1]);
 			
-            // LongEntry
-            if ((TimeCheck) && (Flat) && (Bullish))
-            {
-				EnterLong();
+			// LongEntry
+           	if (TimeCheck && IsFirstTickOfBar && Bullish)
+            {	
+				FillLongEntry1();
             }
 
 		    // ShortEntry
-            if ((TimeCheck) && (Flat) && (Bearish))
+            if (TimeCheck && IsFirstTickOfBar && Bearish)
             {	
-				EnterShort();
+				FillShortEntry1();
             }	
-			
 		}
 		
-		private void EnterLong()
+		private void FillLongEntry1()
 		{
-			SetStopLoss(CalculationMode.Price, Low[1]);
-			EnterLongLimit(Convert.ToInt32(ScalpQuantity), (GetCurrentBid(0) + (-2 * TickSize)), @"ScalpEntry");
-			EnterLongLimit(Convert.ToInt32(RunnerQuantity), (GetCurrentBid(0) + (-2 * TickSize)), @"RunnerEntry");
+			EnterLong(Convert.ToInt32(orderQuantity));
+			BarTraded = CurrentBar;  // save the current bar so only one entry per bar
 		}
 			
-		private void EnterShort()
+		private void FillShortEntry1()
 		{
-			SetStopLoss(CalculationMode.Price, High[1]);
-			EnterShortLimit(Convert.ToInt32(ScalpQuantity), (GetCurrentAsk(0) + (2 * TickSize)), @"ScalpEntry");
-			EnterShortLimit(Convert.ToInt32(RunnerQuantity), (GetCurrentAsk(0) + (2 * TickSize)), @"RunnerEntry");
+			EnterShort(Convert.ToInt32(orderQuantity));
+			BarTraded = CurrentBar;  // save the current bar so only one entry per bar
 		}				
 
 		
 		#region Properties
+		// [Range(0, int.MaxValue)]
+		// [NinjaScriptProperty]
+		// [Display(Name="Scalp Quantity", Description="Number of contracts per trade", Order=1, GroupName="Parameters")]
+		// public int orderQuantity
+		// {
+		// 	get { return orderQuantity; }
+		// 	set { orderQuantity = value; }
+		// }
+
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="Profit Target Ticks", Description="Number of ticks away from entry price for the Profit Target order", Order=1, GroupName="Parameters")]
+		[Display(Name="Profit Target Ticks", Description="Number of ticks away from entry price for the Profit Target order", Order=2, GroupName="Parameters")]
 		public int ProfitTargetTicks
 		{
 			get { return profitTargetTicks; }
@@ -236,7 +236,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="Stop Loss Ticks", Description="Numbers of ticks away from entry price for the Stop Loss order", Order=2, GroupName="Parameters")]
+		[Display(Name="Stop Loss Ticks", Description="Numbers of ticks away from entry price for the Stop Loss order", Order=3, GroupName="Parameters")]
 		public int StopLossTicks
 		{
 			get { return stopLossTicks; }
@@ -245,7 +245,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="BreakEven Ticks Trigger", Description="Number of ticks in Profit to trigger stop to move to Plus Breakeven ticks level", Order=3, GroupName="Parameters")]
+		[Display(Name="BreakEven Ticks Trigger", Description="Number of ticks in Profit to trigger stop to move to Plus Breakeven ticks level", Order=4, GroupName="Parameters")]
 		public int BreakEvenTicks
 		{
 			get {return breakEvenTicks;}
@@ -254,7 +254,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="BreakEven Ticks level", Description="Number of ticks past breakeven for breakeven stop (can be zero)", Order=4, GroupName="Parameters")]
+		[Display(Name="BreakEven Ticks level", Description="Number of ticks past breakeven for breakeven stop (can be zero)", Order=5, GroupName="Parameters")]
 		public int PlusBreakEven
 		{
 			get { return plusBreakEven; }
@@ -263,7 +263,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="Trail Profit Trigger", Description="Number of ticks in profit to trigger trail stop action", Order=5, GroupName="Parameters")]
+		[Display(Name="Trail Profit Trigger", Description="Number of ticks in profit to trigger trail stop action", Order=6, GroupName="Parameters")]
 		public int TrailProfitTrigger
 		{
 			get {return trailProfitTrigger;}
@@ -272,14 +272,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 		
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="Trail Step Ticks", Description="Number of ticks to step for each adjustment of trail stop", Order=6, GroupName="Parameters")]
+		[Display(Name="Trail Step Ticks", Description="Number of ticks to step for each adjustment of trail stop", Order=7, GroupName="Parameters")]
 		public int TrailStepTicks
 		{
 			get {return trailStepTicks;}
 			set {trailStepTicks = value;}
 		}
 		[NinjaScriptProperty]
-		[Display(Name = "Show Lines", Description="Plot profit and stop lines on chart", Order = 7, GroupName = "Parameters")]
+		[Display(Name = "Show Lines", Description="Plot profit and stop lines on chart", Order = 8, GroupName = "Parameters")]
 		public bool ShowLines
 		{
 			get { return showLines; } 
