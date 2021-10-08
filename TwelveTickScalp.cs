@@ -238,14 +238,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 			set { profitTargetTicks = value; }
 		}
 
-		[Range(0, int.MaxValue)]
-		[NinjaScriptProperty]
-		[Display(Name="Stop Loss Ticks", Description="Numbers of ticks away from entry price for the Stop Loss order", Order=3, GroupName="Parameters")]
-		public int StopLossTicks
-		{
-			get { return stopLossTicks; }
-			set { stopLossTicks = value; }
-		}
+		// [Range(0, int.MaxValue)]
+		// [NinjaScriptProperty]
+		// [Display(Name="Stop Loss Ticks", Description="Numbers of ticks away from entry price for the Stop Loss order", Order=3, GroupName="Parameters")]
+		// public int StopLossTicks
+		// {
+		// 	get { return stopLossTicks; }
+		// 	set { stopLossTicks = value; }
+		// }
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
