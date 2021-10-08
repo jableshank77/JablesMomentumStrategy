@@ -26,7 +26,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public class TwelveTickScalp : Strategy
 	{
-		private int		orderQuantity		= 1;		// Default setting for contracts per trade
 		private int		breakEvenTicks		= 10;		// Default setting for ticks needed to acheive before stop moves to breakeven		
 		private int		plusBreakEven		= 2; 		// Default setting for amount of ticks past breakeven to actually breakeven
 		private int		profitTargetTicks	= 28;		// Default setting for how many Ticks away from AvgPrice is profit target
@@ -67,6 +66,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 				TraceOrders							= false;
 				RealtimeErrorHandling				= RealtimeErrorHandling.StopCancelClose;
 				StopTargetHandling					= StopTargetHandling.PerEntryExecution;
+				orderQuantity						= 1;		// Default setting for contracts per trade
 				BarsRequiredToTrade					= 20;
 
 				AddPlot(new Stroke(Brushes.Lime, 2), PlotStyle.Hash, "ProfitTarget");
@@ -220,14 +220,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		
 		#region Properties
-		// [Range(0, int.MaxValue)]
-		// [NinjaScriptProperty]
-		// [Display(Name="Scalp Quantity", Description="Number of contracts per trade", Order=1, GroupName="Parameters")]
-		// public int orderQuantity
-		// {
-		// 	get { return orderQuantity; }
-		// 	set { orderQuantity = value; }
-		// }
+		[Range(0, int.MaxValue)]
+		[NinjaScriptProperty]
+		[Display(Name="Scalp Quantity", Description="Number of contracts per trade", Order=1, GroupName="Parameters")]
+		public int orderQuantity
+		{
+			get { return orderQuantity; }
+			set { orderQuantity = value; }
+		}
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
