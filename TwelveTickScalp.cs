@@ -189,9 +189,9 @@ namespace NinjaTrader.NinjaScript.Strategies
 			bool Long = (Position.MarketPosition == MarketPosition.Long);
 			bool Short = (Position.MarketPosition == MarketPosition.Short);
 			// Current bar closed higher than prior bar close & current bar closed above its open
-			bool Bullish = Close[1] > Close[2] && Close[2] > Close[3] && Close[1] > Open[1] && Close[2] > Open[2]; 
+			bool Bullish = Close[1] > Close[2] && Close[1] > Open[1] && Close[2] > Open[2]; 
 			// Current bar closed lower than prior bar close & current bar closed below its open
-			bool Bearish = Close[1] < Close[2] && Close[2] < Close[3] && Close[1] < Open[1] && Close[2] < Open[2]; 
+			bool Bearish = Close[1] < Close[2] && Close[1] < Open[1] && Close[2] < Open[2]; 
 			
 			// LongEntry
            	if (TimeCheck && IsFirstTickOfBar && Bullish)
