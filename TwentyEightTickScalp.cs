@@ -24,8 +24,9 @@ using NinjaTrader.NinjaScript.DrawingTools;
 //This namespace holds Strategies in this folder and is required. Do not change it. 
 namespace NinjaTrader.NinjaScript.Strategies
 {
-	public class TwelveTickScalp : Strategy
+	public class TwentyEightTickScalp : Strategy
 	{
+		private int		orderQuantity		= 1;		// Default setting for contracts per trade
 		private int		breakEvenTicks		= 10;		// Default setting for ticks needed to acheive before stop moves to breakeven		
 		private int		plusBreakEven		= 2; 		// Default setting for amount of ticks past breakeven to actually breakeven
 		private int		profitTargetTicks	= 28;		// Default setting for how many Ticks away from AvgPrice is profit target
@@ -50,8 +51,8 @@ namespace NinjaTrader.NinjaScript.Strategies
 		{
 			if (State == State.SetDefaults)
 			{
-				Description							= @"ProfitTargetTrailingStop Version 1.01b. StopLoss, Trailing Stop and ProfitTarget With Controls. By Chris Long. alcamie@gmail.com";
-				Name								= "TwelveTickScalp";
+				Description							= @"The Name is descriptive enough.";
+				Name								= "TwentyEightTickScalp";
 				Calculate							= Calculate.OnPriceChange;
 				EntriesPerDirection					= 1;
 				EntryHandling						= EntryHandling.AllEntries;
@@ -66,7 +67,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 				TraceOrders							= false;
 				RealtimeErrorHandling				= RealtimeErrorHandling.StopCancelClose;
 				StopTargetHandling					= StopTargetHandling.PerEntryExecution;
-				orderQuantity						= 1;		// Default setting for contracts per trade
 				BarsRequiredToTrade					= 20;
 
 				AddPlot(new Stroke(Brushes.Lime, 2), PlotStyle.Hash, "ProfitTarget");
@@ -220,14 +220,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		
 		#region Properties
-		[Range(0, int.MaxValue)]
-		[NinjaScriptProperty]
-		[Display(Name="Scalp Quantity", Description="Number of contracts per trade", Order=1, GroupName="Parameters")]
-		public int orderQuantity
-		{
-			get { return orderQuantity; }
-			set { orderQuantity = value; }
-		}
+		// [Range(0, int.MaxValue)]
+		// [NinjaScriptProperty]
+		// [Display(Name="Order Quantity", Description="Number of contracts per trade", Order=1, GroupName="Parameters")]
+		// public int orderQuantity
+		// {
+		// 	get { return orderQuantity; }
+		// 	set { orderQuantity = value; }
+		// }
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
@@ -249,7 +249,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="BreakEven Ticks Trigger", Description="Number of ticks in Profit to trigger stop to move to Plus Breakeven ticks level", Order=4, GroupName="Parameters")]
+		[Display(Name="BreakEven Ticks Trigger", Description="Number of ticks in Profit to trigger stop to move to Plus Breakeven ticks level", Order=3, GroupName="Parameters")]
 		public int BreakEvenTicks
 		{
 			get {return breakEvenTicks;}
@@ -258,7 +258,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="BreakEven Ticks level", Description="Number of ticks past breakeven for breakeven stop (can be zero)", Order=5, GroupName="Parameters")]
+		[Display(Name="BreakEven Ticks level", Description="Number of ticks past breakeven for breakeven stop (can be zero)", Order=4, GroupName="Parameters")]
 		public int PlusBreakEven
 		{
 			get { return plusBreakEven; }
@@ -267,7 +267,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="Trail Profit Trigger", Description="Number of ticks in profit to trigger trail stop action", Order=6, GroupName="Parameters")]
+		[Display(Name="Trail Profit Trigger", Description="Number of ticks in profit to trigger trail stop action", Order=5, GroupName="Parameters")]
 		public int TrailProfitTrigger
 		{
 			get {return trailProfitTrigger;}
@@ -276,14 +276,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 		
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
-		[Display(Name="Trail Step Ticks", Description="Number of ticks to step for each adjustment of trail stop", Order=7, GroupName="Parameters")]
+		[Display(Name="Trail Step Ticks", Description="Number of ticks to step for each adjustment of trail stop", Order=6, GroupName="Parameters")]
 		public int TrailStepTicks
 		{
 			get {return trailStepTicks;}
 			set {trailStepTicks = value;}
 		}
 		[NinjaScriptProperty]
-		[Display(Name = "Show Lines", Description="Plot profit and stop lines on chart", Order = 8, GroupName = "Parameters")]
+		[Display(Name = "Show Lines", Description="Plot profit and stop lines on chart", Order = 7, GroupName = "Parameters")]
 		public bool ShowLines
 		{
 			get { return showLines; } 
