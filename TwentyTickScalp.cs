@@ -36,8 +36,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 		private int		trailStepTicks		= 8;		// Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
 		private int 	BarTraded 			= 0; 		// Default setting for Bar number that trade occurs	
 		
-		private bool	showLines			= false;		// Turn on/off the profit targett, stoploss and trailing stop plots  // new for NT8
-		
 		private double	initialBreakEven	= 0; 		// Default setting for where you set the breakeven
 		private double 	previousPrice		= 0;		// previous price used to calculate trailing stop
 		private double 	newPrice			= 0;		// Default setting for new price used to calculate trailing stop
