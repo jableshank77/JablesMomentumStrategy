@@ -28,11 +28,12 @@ namespace NinjaTrader.NinjaScript.Strategies
 	{
 		private int		scalpQuantity		= 1;		// Default setting for scalp contracts per trade
 		private int		runnerQuantity		= 1;		// Default setting for runner contracts per trade
+		private int		ProfitTargetTicks1	= 20;		// Default setting for how many Ticks away from AvgPrice is scalp target
+		private int		ProfitTargetTicks2	= 40;		// Default setting for how many Ticks away from AvgPrice is runner target
 		private int		breakEvenTicks		= 10;		// Default setting for ticks needed to acheive before stop moves to breakeven		
 		private int		plusBreakEven		= 2; 		// Default setting for amount of ticks past breakeven to actually breakeven
-		private int		ProfitTargetTicks	= 20;		// Default setting for how many Ticks away from AvgPrice is profit target
-		private int		trailProfitTrigger	= 20;		// 8 Default Setting for trail trigger ie the number of ticks movede after break even befor activating TrailStep
-		private int		trailStepTicks		= 8;		// 2 Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
+		private int		trailProfitTrigger	= 20;		// Default Setting for trail trigger ie the number of ticks movede after break even befor activating TrailStep
+		private int		trailStepTicks		= 8;		// Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
 		private int 	BarTraded 			= 0; 		// Default setting for Bar number that trade occurs	
 		
 		private bool	showLines			= false;		// Turn on/off the profit targett, stoploss and trailing stop plots  // new for NT8
@@ -68,12 +69,15 @@ namespace NinjaTrader.NinjaScript.Strategies
 				RealtimeErrorHandling				= RealtimeErrorHandling.StopCancelClose;
 				StopTargetHandling					= StopTargetHandling.PerEntryExecution;
 				BarsRequiredToTrade					= 20;
+				EntriesPerDirection = 1;
+    			EntryHandling = EntryHandling.UniqueEntries;
 
 
 			}
 			else if (State == State.Configure)
 			{
-				SetProfitTarget(CalculationMode.Ticks, ProfitTargetTicks);	
+				SetProfitTarget(@"Scalp Entry", CalculationMode.Ticks, ProfitTargetTicks1);	
+				SetProfitTarget(@"Runner Entry", CalculationMode.Ticks, ProfitTargetTicks2);	
 			}
 		}
 		
@@ -157,13 +161,13 @@ namespace NinjaTrader.NinjaScript.Strategies
 			bool Bearish = Close[1] < Close[2] && Close[1] < Open[1] && Close[2] < Open[2]; 
 			
 			// LongEntry
-           	if (TimeCheck && IsFirstTickOfBar && Bullish)
+           	if (TimeCheck && Flat && IsFirstTickOfBar && Bullish)
             {	
 				FillLongEntry1();
             }
 
 		    // ShortEntry
-            if (TimeCheck && IsFirstTickOfBar && Bearish)
+            if (TimeCheck && Flat && IsFirstTickOfBar && Bearish)
             {	
 				FillShortEntry1();
             }	
@@ -172,13 +176,13 @@ namespace NinjaTrader.NinjaScript.Strategies
 		private void FillLongEntry1()
 		{
 			EnterLong(Convert.ToInt32(scalpQuantity), @"Scalp Entry");
-			BarTraded = CurrentBar;  // save the current bar so only one entry per bar
+			EnterLong(Convert.ToInt32(runnerQuantity), @"Runner Entry");
 		}
 			
 		private void FillShortEntry1()
 		{
 			EnterShort(Convert.ToInt32(scalpQuantity), @"Scalp Entry");
-			BarTraded = CurrentBar;  // save the current bar so only one entry per bar
+			EnterShort(Convert.ToInt32(runnerQuantity), @"Runner Entry");
 		}				
 
 	}
