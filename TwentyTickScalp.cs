@@ -24,13 +24,14 @@ using NinjaTrader.NinjaScript.DrawingTools;
 //This namespace holds Strategies in this folder and is required. Do not change it. 
 namespace NinjaTrader.NinjaScript.Strategies
 {
-	public class TwentyEightTickScalp : Strategy
+	public class TwentyTickScalp : Strategy
 	{
-		private int		orderQuantity		= 1;		// Default setting for contracts per trade
+		private int		scalpQuantity		= 1;		// Default setting for scalp contracts per trade
+		private int		runnerQuantity		= 1;		// Default setting for runner contracts per trade
 		private int		breakEvenTicks		= 10;		// Default setting for ticks needed to acheive before stop moves to breakeven		
 		private int		plusBreakEven		= 2; 		// Default setting for amount of ticks past breakeven to actually breakeven
-		private int		profitTargetTicks	= 28;		// Default setting for how many Ticks away from AvgPrice is profit target
-        private int		stopLossTicks		= 6;		// Default setting for stoploss. Ticks away from AvgPrice		
+		private int		profitTargetTicks	= 20;		// Default setting for how many Ticks away from AvgPrice is profit target
+        // private int		stopLossTicks		= 6;		// Default setting for stoploss. Ticks away from AvgPrice		
 		private int		trailProfitTrigger	= 20;		// 8 Default Setting for trail trigger ie the number of ticks movede after break even befor activating TrailStep
 		private int		trailStepTicks		= 8;		// 2 Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
 		private int 	BarTraded 			= 0; 		// Default setting for Bar number that trade occurs	
@@ -52,7 +53,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 			if (State == State.SetDefaults)
 			{
 				Description							= @"The Name is descriptive enough.";
-				Name								= "TwentyEightTickScalp";
+				Name								= "TwentyTickScalp";
 				Calculate							= Calculate.OnPriceChange;
 				EntriesPerDirection					= 1;
 				EntryHandling						= EntryHandling.AllEntries;
@@ -75,7 +76,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 			}
 			else if (State == State.Configure)
 			{
-				// SetStopLoss(CalculationMode.Ticks, stopLossTicks);
 				SetProfitTarget(CalculationMode.Ticks, profitTargetTicks);	
 			}
 		}
@@ -90,9 +90,7 @@ namespace NinjaTrader.NinjaScript.Strategies
             {
 				// Resets the stop loss to the original value when all positions are closed
                 case MarketPosition.Flat:
-                    SetStopLoss(CalculationMode.Ticks, stopLossTicks);
 					previousPrice = 0;
-					stopPlot = 0;
                     break;
 				
 					   
@@ -100,7 +98,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 						
 					if (previousPrice == 0)
 					{
-						stopPlot = Position.AveragePrice - stopLossTicks * TickSize;  // initial stop plot level
 						SetStopLoss(CalculationMode.Price, Low[1]);
 					}
 					
@@ -110,7 +107,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 						initialBreakEven = Position.AveragePrice + plusBreakEven * TickSize;
                         SetStopLoss(CalculationMode.Price, initialBreakEven);
 						previousPrice = Position.AveragePrice;
-						stopPlot = initialBreakEven;
                     }
 					// Once at breakeven wait till trailProfitTrigger is reached before advancing stoploss by trailStepTicks size step
 					else if (previousPrice	!= 0 ////StopLoss is at breakeven
@@ -119,14 +115,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 						newPrice = previousPrice + trailStepTicks * TickSize; 	// Calculate trail stop adjustment
 						SetStopLoss(CalculationMode.Price, newPrice);			// Readjust stoploss level		
 						previousPrice = newPrice;				 				// save for price adjust on next candle
-						stopPlot = newPrice; 					 				// save to adjust plot line
-					}
-					
-					// Plot the profit/stop lines
-					if (showLines)
-					{
-						ProfitTarget[0] = Position.AveragePrice + profitTargetTicks * TickSize;
-						StopLoss[0] 	= stopPlot;
 					}
                     break;
 					
@@ -135,7 +123,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 					
 					if (previousPrice == 0) 
 					{
-						stopPlot = Position.AveragePrice + stopLossTicks * TickSize;  // initial stop plot level
 						SetStopLoss(CalculationMode.Price, High[1]);
 					}
 					
@@ -145,7 +132,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 						initialBreakEven = Position.AveragePrice - plusBreakEven * TickSize;
                         SetStopLoss(CalculationMode.Price, initialBreakEven);
 						previousPrice = Position.AveragePrice;
-						stopPlot = initialBreakEven;
                     }
 					// Once at breakeven wait till trailProfitTrigger is reached before advancing stoploss by trailStepTicks size step
 					else if (previousPrice	!= 0 ////StopLoss is at breakeven
@@ -154,14 +140,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 						newPrice = previousPrice - trailStepTicks * TickSize;
 						SetStopLoss(CalculationMode.Price, newPrice);
 						previousPrice = newPrice;
-						stopPlot = newPrice;
-					}
-					
-					if (showLines)
-					{
-						ProfitTarget[0] = Position.AveragePrice - profitTargetTicks * TickSize;
-						StopLoss[0] 	= stopPlot;
-					}					
+					}				
 
                     break;
                 default:
@@ -169,22 +148,9 @@ namespace NinjaTrader.NinjaScript.Strategies
 			}	
 			
 			// Begin the Entry Logic section *********
-	
-			/* The idea here is that you would create your own entry logic and replace what is show below
-			You will want to make it like:
-			
-			if (Position.MarketPosition != MarketPosition.Short && Your various conditions for Long entry)
-			{
-			 FillLongEntry1();  // must call this to enter long
-			}
-			if (Position.MarketPosition != MarketPosition.Long && Your various conditions for short entry)
-			{
-			 FillShortEntry1(); // must call this to enter short
-			}		
-			*/
 
-			bool TimeCheck = (Times[0][0].TimeOfDay > new TimeSpan(17, 0, 0))
-			 	|| (Times[0][0].TimeOfDay < new TimeSpan(14, 45, 0));
+			bool TimeCheck = (Times[0][0].TimeOfDay > new TimeSpan(07, 0, 0))
+			 	&& (Times[0][0].TimeOfDay < new TimeSpan(11, 45, 0));
 			bool Flat = (Position.MarketPosition == MarketPosition.Flat);
 			bool Long = (Position.MarketPosition == MarketPosition.Long);
 			bool Short = (Position.MarketPosition == MarketPosition.Short);
@@ -208,27 +174,18 @@ namespace NinjaTrader.NinjaScript.Strategies
 		
 		private void FillLongEntry1()
 		{
-			EnterLong(Convert.ToInt32(orderQuantity));
+			EnterLong(Convert.ToInt32(scalpQuantity), @"Scalp Entry");
 			BarTraded = CurrentBar;  // save the current bar so only one entry per bar
 		}
 			
 		private void FillShortEntry1()
 		{
-			EnterShort(Convert.ToInt32(orderQuantity));
+			EnterShort(Convert.ToInt32(scalpQuantity), @"Scalp Entry");
 			BarTraded = CurrentBar;  // save the current bar so only one entry per bar
 		}				
 
 		
 		#region Properties
-		// [Range(0, int.MaxValue)]
-		// [NinjaScriptProperty]
-		// [Display(Name="Order Quantity", Description="Number of contracts per trade", Order=1, GroupName="Parameters")]
-		// public int orderQuantity
-		// {
-		// 	get { return orderQuantity; }
-		// 	set { orderQuantity = value; }
-		// }
-
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
 		[Display(Name="Profit Target Ticks", Description="Number of ticks away from entry price for the Profit Target order", Order=2, GroupName="Parameters")]
@@ -237,15 +194,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 			get { return profitTargetTicks; }
 			set { profitTargetTicks = value; }
 		}
-
-		// [Range(0, int.MaxValue)]
-		// [NinjaScriptProperty]
-		// [Display(Name="Stop Loss Ticks", Description="Numbers of ticks away from entry price for the Stop Loss order", Order=3, GroupName="Parameters")]
-		// public int StopLossTicks
-		// {
-		// 	get { return stopLossTicks; }
-		// 	set { stopLossTicks = value; }
-		// }
 
 		[Range(0, int.MaxValue)]
 		[NinjaScriptProperty]
@@ -281,13 +229,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 		{
 			get {return trailStepTicks;}
 			set {trailStepTicks = value;}
-		}
-		[NinjaScriptProperty]
-		[Display(Name = "Show Lines", Description="Plot profit and stop lines on chart", Order = 7, GroupName = "Parameters")]
-		public bool ShowLines
-		{
-			get { return showLines; } 
-			set { showLines = value; }
 		}		
 
 		[Browsable(false)]
