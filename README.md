@@ -1,1 +1,1 @@
-# TwoBarScalpWithTrailingStop
+# JablesMomentumStrategy
