@@ -30,8 +30,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 		private int		runnerQuantity		= 1;		// Default setting for runner contracts per trade
 		private int		breakEvenTicks		= 10;		// Default setting for ticks needed to acheive before stop moves to breakeven		
 		private int		plusBreakEven		= 2; 		// Default setting for amount of ticks past breakeven to actually breakeven
-		private int		profitTargetTicks	= 20;		// Default setting for how many Ticks away from AvgPrice is profit target
-        // private int		stopLossTicks		= 6;		// Default setting for stoploss. Ticks away from AvgPrice		
+		private int		ProfitTargetTicks	= 20;		// Default setting for how many Ticks away from AvgPrice is profit target
 		private int		trailProfitTrigger	= 20;		// 8 Default Setting for trail trigger ie the number of ticks movede after break even befor activating TrailStep
 		private int		trailStepTicks		= 8;		// 2 Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
 		private int 	BarTraded 			= 0; 		// Default setting for Bar number that trade occurs	
@@ -70,13 +69,11 @@ namespace NinjaTrader.NinjaScript.Strategies
 				StopTargetHandling					= StopTargetHandling.PerEntryExecution;
 				BarsRequiredToTrade					= 20;
 
-				AddPlot(new Stroke(Brushes.Lime, 2), PlotStyle.Hash, "ProfitTarget");
-				AddPlot(new Stroke(Brushes.Red, 2), PlotStyle.Line, "StopLoss");
 
 			}
 			else if (State == State.Configure)
 			{
-				SetProfitTarget(CalculationMode.Ticks, profitTargetTicks);	
+				SetProfitTarget(CalculationMode.Ticks, ProfitTargetTicks);	
 			}
 		}
 		
@@ -183,70 +180,6 @@ namespace NinjaTrader.NinjaScript.Strategies
 			EnterShort(Convert.ToInt32(scalpQuantity), @"Scalp Entry");
 			BarTraded = CurrentBar;  // save the current bar so only one entry per bar
 		}				
-
-		
-		#region Properties
-		[Range(0, int.MaxValue)]
-		[NinjaScriptProperty]
-		[Display(Name="Profit Target Ticks", Description="Number of ticks away from entry price for the Profit Target order", Order=2, GroupName="Parameters")]
-		public int ProfitTargetTicks
-		{
-			get { return profitTargetTicks; }
-			set { profitTargetTicks = value; }
-		}
-
-		[Range(0, int.MaxValue)]
-		[NinjaScriptProperty]
-		[Display(Name="BreakEven Ticks Trigger", Description="Number of ticks in Profit to trigger stop to move to Plus Breakeven ticks level", Order=3, GroupName="Parameters")]
-		public int BreakEvenTicks
-		{
-			get {return breakEvenTicks;}
-			set {breakEvenTicks = value;}
-		}
-
-		[Range(0, int.MaxValue)]
-		[NinjaScriptProperty]
-		[Display(Name="BreakEven Ticks level", Description="Number of ticks past breakeven for breakeven stop (can be zero)", Order=4, GroupName="Parameters")]
-		public int PlusBreakEven
-		{
-			get { return plusBreakEven; }
-			set { plusBreakEven = value; }
-		}
-
-		[Range(0, int.MaxValue)]
-		[NinjaScriptProperty]
-		[Display(Name="Trail Profit Trigger", Description="Number of ticks in profit to trigger trail stop action", Order=5, GroupName="Parameters")]
-		public int TrailProfitTrigger
-		{
-			get {return trailProfitTrigger;}
-			set {trailProfitTrigger = value;}
-		}
-		
-		[Range(0, int.MaxValue)]
-		[NinjaScriptProperty]
-		[Display(Name="Trail Step Ticks", Description="Number of ticks to step for each adjustment of trail stop", Order=6, GroupName="Parameters")]
-		public int TrailStepTicks
-		{
-			get {return trailStepTicks;}
-			set {trailStepTicks = value;}
-		}		
-
-		[Browsable(false)]
-		[XmlIgnore]
-		public Series<double> ProfitTarget
-		{
-			get { return Values[0]; }
-		}
-
-		[Browsable(false)]
-		[XmlIgnore]
-		public Series<double> StopLoss
-		{
-			get { return Values[1]; }
-		}
-
-
-		#endregion
 
 	}
 }
