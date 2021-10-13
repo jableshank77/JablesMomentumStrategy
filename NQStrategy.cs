@@ -172,14 +172,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 		
 		private void FillLongEntry1()
 		{
-			EnterLong(Convert.ToInt32(scalpQuantity), @"Scalp Entry");
-			EnterLong(Convert.ToInt32(runnerQuantity), @"Runner Entry");
+			EnterLongLimit(Convert.ToInt32(scalpQuantity), GetCurrentBid(0), @"Scalp Entry");
+			EnterLongLimit(Convert.ToInt32(runnerQuantity), GetCurrentBid(0), @"Runner Entry");
 		}
 			
 		private void FillShortEntry1()
 		{
-			EnterShort(Convert.ToInt32(scalpQuantity), @"Scalp Entry");
-			EnterShort(Convert.ToInt32(runnerQuantity), @"Runner Entry");
+			EnterShortLimit(Convert.ToInt32(scalpQuantity), GetCurrentAsk(0), @"Scalp Entry");
+			EnterShortLimit(Convert.ToInt32(runnerQuantity), GetCurrentAsk(0), @"Runner Entry");
 		}				
 
 	}
