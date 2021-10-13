@@ -28,12 +28,12 @@ namespace NinjaTrader.NinjaScript.Strategies
 	{
 		private int		scalpQuantity		= 1;		// Default setting for scalp contracts per trade
 		private int		runnerQuantity		= 1;		// Default setting for runner contracts per trade
-		private int		ProfitTargetTicks1	= 20;		// Default setting for how many Ticks away from AvgPrice is scalp target
+		private int		ProfitTargetTicks1	= 16;		// Default setting for how many Ticks away from AvgPrice is scalp target
 		private int		ProfitTargetTicks2	= 40;		// Default setting for how many Ticks away from AvgPrice is runner target
-		private int		breakEvenTicks		= 19;		// Default setting for ticks needed to acheive before stop moves to breakeven		
+		private int		breakEvenTicks		= 15;		// Default setting for ticks needed to acheive before stop moves to breakeven		
 		private int		plusBreakEven		= 2; 		// Default setting for amount of ticks past breakeven to actually breakeven
-		private int		trailProfitTrigger	= 20;		// Default Setting for trail trigger ie the number of ticks movede after break even befor activating TrailStep
-		private int		trailStepTicks		= 8;		// Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
+		// private int		trailProfitTrigger	= 20;		// Default Setting for trail trigger ie the number of ticks movede after break even befor activating TrailStep
+		// private int		trailStepTicks		= 8;		// Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
 		private int 	BarTraded 			= 0; 		// Default setting for Bar number that trade occurs	
 		private double	initialBreakEven	= 0; 		// Default setting for where you set the breakeven
 		private double 	previousPrice		= 0;		// previous price used to calculate trailing stop
