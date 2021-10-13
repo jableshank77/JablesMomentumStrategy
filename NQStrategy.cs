@@ -107,13 +107,13 @@ namespace NinjaTrader.NinjaScript.Strategies
 						previousPrice = Position.AveragePrice;
                     }
 					// Once at breakeven wait till trailProfitTrigger is reached before advancing stoploss by trailStepTicks size step
-					else if (previousPrice	!= 0 ////StopLoss is at breakeven
- 							&& GetCurrentAsk() > previousPrice + trailProfitTrigger * TickSize )
-					{
-						newPrice = previousPrice + trailStepTicks * TickSize; 	// Calculate trail stop adjustment
-						SetStopLoss(CalculationMode.Price, newPrice);			// Readjust stoploss level		
-						previousPrice = newPrice;				 				// save for price adjust on next candle
-					}
+					// else if (previousPrice	!= 0 ////StopLoss is at breakeven
+ 					// 		&& GetCurrentAsk() > previousPrice + trailProfitTrigger * TickSize )
+					// {
+					// 	newPrice = previousPrice + trailStepTicks * TickSize; 	// Calculate trail stop adjustment
+					// 	SetStopLoss(CalculationMode.Price, newPrice);			// Readjust stoploss level		
+					// 	previousPrice = newPrice;				 				// save for price adjust on next candle
+					// }
                     break;
 					
 					
@@ -132,13 +132,13 @@ namespace NinjaTrader.NinjaScript.Strategies
 						previousPrice = Position.AveragePrice;
                     }
 					// Once at breakeven wait till trailProfitTrigger is reached before advancing stoploss by trailStepTicks size step
-					else if (previousPrice	!= 0 ////StopLoss is at breakeven
- 							&& GetCurrentAsk() < previousPrice - trailProfitTrigger * TickSize )
-					{
-						newPrice = previousPrice - trailStepTicks * TickSize;
-						SetStopLoss(CalculationMode.Price, newPrice);
-						previousPrice = newPrice;
-					}				
+					// else if (previousPrice	!= 0 ////StopLoss is at breakeven
+ 					// 		&& GetCurrentAsk() < previousPrice - trailProfitTrigger * TickSize )
+					// {
+					// 	newPrice = previousPrice - trailStepTicks * TickSize;
+					// 	SetStopLoss(CalculationMode.Price, newPrice);
+					// 	previousPrice = newPrice;
+					// }				
 
                     break;
                 default:
