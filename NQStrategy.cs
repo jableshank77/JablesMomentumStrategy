@@ -96,7 +96,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 						
 					if (previousPrice == 0)
 					{
-						SetStopLoss(CalculationMode.Price, Low[1]);
+						SetStopLoss(CalculationMode.Price, Low[2]);
 					}
 					
                     // Once the price is greater than entry price + breakEvenTicks ticks, set stop loss to plusBreakeven ticks
@@ -121,7 +121,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 					
 					if (previousPrice == 0) 
 					{
-						SetStopLoss(CalculationMode.Price, High[1]);
+						SetStopLoss(CalculationMode.Price, High[2]);
 					}
 					
                     // Once the price is Less than entry price - breakEvenTicks ticks, set stop loss to breakeven
