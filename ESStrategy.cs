@@ -24,16 +24,16 @@ using NinjaTrader.NinjaScript.DrawingTools;
 //This namespace holds Strategies in this folder and is required. Do not change it. 
 namespace NinjaTrader.NinjaScript.Strategies
 {
-	public class NQStrategy : Strategy
+	public class ESStrategy : Strategy
 	{
 		private int		scalpQuantity		= 1;		// Default setting for scalp contracts per trade
 		private int		runnerQuantity		= 1;		// Default setting for runner contracts per trade
-		private int		ProfitTargetTicks1	= 20;		// Default setting for how many Ticks away from AvgPrice is scalp target
-		private int		ProfitTargetTicks2	= 40;		// Default setting for how many Ticks away from AvgPrice is runner target
-		private int		breakEvenTicks		= 20;		// Default setting for ticks needed to acheive before stop moves to breakeven		
+		private int		ProfitTargetTicks1	= 8;		// Default setting for how many Ticks away from AvgPrice is scalp target
+		private int		ProfitTargetTicks2	= 24;		// Default setting for how many Ticks away from AvgPrice is runner target
+		private int		breakEvenTicks		= 8;		// Default setting for ticks needed to acheive before stop moves to breakeven		
 		private int		plusBreakEven		= 2; 		// Default setting for amount of ticks past breakeven to actually breakeven
-		private int		trailProfitTrigger	= 20;		// Default Setting for trail trigger ie the number of ticks movede after break even befor activating TrailStep
-		private int		trailStepTicks		= 8;		// Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
+		private int		trailProfitTrigger	= 12;		// Default Setting for trail trigger ie the number of ticks movede after break even befor activating TrailStep
+		private int		trailStepTicks		= 4;		// Default setting for number of ticks advanced in the trails - take into consideration the barsize as is calculated/advanced next bar
 		private int 	BarTraded 			= 0; 		// Default setting for Bar number that trade occurs	
 		private double	initialBreakEven	= 0; 		// Default setting for where you set the breakeven
 		private double 	previousPrice		= 0;		// previous price used to calculate trailing stop
@@ -50,7 +50,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 			if (State == State.SetDefaults)
 			{
 				Description							= @"The Name is descriptive enough.";
-				Name								= "NQStrategy";
+				Name								= "ESStrategy";
 				Calculate							= Calculate.OnPriceChange;
 				EntriesPerDirection					= 1;
 				EntryHandling						= EntryHandling.AllEntries;
